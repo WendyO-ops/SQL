@@ -1,0 +1,88 @@
+#This project utilizes the following VIP Climate Conference data: 
+
+Climate Conference Project
+Database: https://www.db-fiddle.com/f/pxMci1sLL945KHKYvpe9W6/1
+
+
+--Custom Query: Which VIP Members are providing feedback from other panelist's talks and receiving feedback for their talks? 
+
+SELECT 
+    provider.member_id AS feedback_provider,
+    provider.provides_feedback_to AS feedback_receiver
+FROM vips AS provider
+INNER JOIN vips AS receiver 
+    ON provider.provides_feedback_to = receiver.member_id
+ORDER BY provider.member_id DESC;
+
+
+--Custom Query: Do all the VIPs have hotel reservations? 
+
+SELECT 
+	vips.member_id,
+    vips.first_name,
+    vips.last_name,
+    reservations.member_id
+FROM vips
+LEFT JOIN reservations ON vips.member_id = reservations.member_id
+WHERE reservations.member_id IS NULL;
+
+
+--Custom Query: Which VIPs who have reservations did not RSVP for both the welcoming session and the dinner?
+
+SELECT 
+	vips.member_id,
+    vips.first_name,
+    vips.last_name,
+    reservations.member_id,
+    reservations.welcome_rsvp,
+    reservations.dinner_rsvp
+FROM vips
+LEFT JOIN reservations ON vips.member_id = reservations.member_id
+WHERE reservations.welcome_rsvp <> 1
+OR reservations.dinner_rsvp <> 1;
+
+
+--Custom Query: Which VIPs with reservations are staying at which hotels? 
+
+
+SELECT 
+	vips.member_id,
+    vips.first_name,
+    vips.last_name,
+    reservations.hotel,
+    reservations.member_id,
+    hotels.hotel_id,
+    hotels.hotel_name
+FROM vips
+INNER JOIN reservations ON vips.member_id = reservations.member_id
+	INNER JOIN hotels ON reservations.hotel = hotels.hotel_id
+ORDER BY reservations.member_id DESC;
+
+
+
+--Custom Query: What VIP members joined the organization in it's early, middle, and late stages? 
+
+SELECT 
+	vips.first_name,
+    vips.last_name,
+    vips.member_since,
+   		CASE WHEN member_since <= 2005 THEN "Joined Early"
+        WHEN member_since <= 2015 THEN "Joined Midway"
+		ELSE "Joined Late"
+        END AS membership_category
+FROM vips;
+
+
+--Custom Query: Which VIPS are either associatiated with a government or research organization? 
+
+
+SELECT 
+	vips.first_name,
+    vips.last_name,
+    vips.assoc_type
+FROM vips
+WHERE vips.assoc_type = "research"
+OR vips.assoc_type = "government"
+ORDER BY vips.first_name ASC;
+       
+       
